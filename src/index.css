@@ -2730,5 +2730,34 @@ body {
   }
 }
 
+@media (max-height: 520px) {
+  .site-header {
+    padding: 6px 14px;
+  }
+
+  .brand-logo-badge {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand-title {
+    font-size: 0.95rem;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .mode-tab-btn {
+    padding: 5px 10px;
+    font-size: 0.76rem;
+  }
+
+  .main-stage {
+    padding: 8px 12px;
+    gap: 12px;
+  }
+}
+
 
 
