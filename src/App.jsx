@@ -33,7 +33,8 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.85);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [hoveredCardAvatarId, setHoveredCardAvatarId] = useState(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isLooping, setIsLooping] = useState(true);
   const [soundEffects, setSoundEffects] = useState(true);
@@ -108,11 +109,13 @@ export default function App() {
   const togglePlay = () => {
     if (!videoRef.current) return;
     playSound('click', soundEffects);
-    if (isPlaying) {
+    if (!videoRef.current.paused) {
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      videoRef.current.play().then(() => setIsPlaying(true)).catch((err) => {
+        console.warn('Play prevented:', err);
+      });
     }
   };
 
@@ -130,7 +133,23 @@ export default function App() {
       videoRef.current.muted = isMuted;
       videoRef.current.playbackRate = playbackSpeed;
       if (isPlaying) {
-        videoRef.current.play().catch(() => {});
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch((err) => {
+              console.warn('Autoplay prevented, retrying muted:', err);
+              if (videoRef.current) {
+                videoRef.current.muted = true;
+                setIsMuted(true);
+                videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {
+                  setIsPlaying(false);
+                });
+              }
+            });
+        }
       }
     }
   };
@@ -165,6 +184,11 @@ export default function App() {
       const nextMuted = !isMuted;
       setIsMuted(nextMuted);
       videoRef.current.muted = nextMuted;
+      if (!nextMuted && volume === 0) {
+        setVolume(0.85);
+        videoRef.current.volume = 0.85;
+      }
+      showToast(nextMuted ? 'Звук выключен' : 'Звук включен 🔊');
     }
   };
 
@@ -422,10 +446,30 @@ export default function App() {
                     loop={isLooping}
                     playsInline
                     autoPlay
+                    muted={isMuted}
+                    style={{ objectPosition: activeAvatar.videoFocus || 'center' }}
                     onTimeUpdate={onTimeUpdate}
                     onLoadedMetadata={onLoadedMetadata}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
                     onClick={togglePlay}
                   />
+
+                  {/* Quick Unmute Floating Badge (appears if playing muted) */}
+                  {isMuted && isPlaying && (
+                    <button
+                      id="btn-quick-unmute"
+                      className="unmute-badge-overlay"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleMute();
+                      }}
+                      title="Включить звук видео (M)"
+                    >
+                      <VolumeX size={15} />
+                      <span>Включить звук</span>
+                    </button>
+                  )}
 
                   {/* Top Bar Overlay */}
                   <div className="video-overlay-top">
@@ -797,13 +841,28 @@ export default function App() {
                       setActiveMode('cinema');
                     }}
                   >
-                    <div className="roster-card-media">
+                    <div
+                      className="roster-card-media"
+                      onMouseEnter={() => setHoveredCardAvatarId(avatar.id)}
+                      onMouseLeave={() => setHoveredCardAvatarId(null)}
+                    >
                       <img
                         src={avatar.thumbnailSrc}
                         alt={avatar.name}
-                        className="roster-card-img"
+                        className={`roster-card-img ${hoveredCardAvatarId === avatar.id ? 'is-faded' : ''}`}
                         loading="lazy"
                       />
+                      {hoveredCardAvatarId === avatar.id && (
+                        <video
+                          className="roster-card-video-preview"
+                          src={avatar.videoSrc}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          style={{ objectPosition: avatar.videoFocus || 'center' }}
+                        />
+                      )}
                       <span className="roster-card-overlay-badge">{avatar.duration}</span>
                       <div className="roster-play-hover-btn">
                         <Play size={20} fill="#000" />
@@ -892,13 +951,16 @@ export default function App() {
               >
                 <div className="player-aspect-box">
                   <video
-                    key={activeAvatar.videoSrc}
+                    ref={videoRef}
+                    key={`interview-${activeAvatar.videoSrc}`}
                     className="cinema-video-element"
                     src={activeAvatar.videoSrc}
                     poster={activeAvatar.thumbnailSrc}
                     loop
                     autoPlay
+                    muted={isMuted}
                     playsInline
+                    style={{ objectPosition: activeAvatar.videoFocus || 'center' }}
                     onClick={togglePlay}
                   />
                   <div className="video-overlay-top">

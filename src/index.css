@@ -472,6 +472,46 @@ body {
   opacity: 1;
 }
 
+/* Floating Quick Unmute Overlay */
+.unmute-badge-overlay {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--avatar-accent, #38bdf8);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 8;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px var(--avatar-glow);
+  transition: all var(--transition-fast);
+  animation: pulseUnmute 2s infinite ease-in-out;
+}
+
+.unmute-badge-overlay:hover {
+  transform: scale(1.05);
+  background: var(--avatar-accent, #38bdf8);
+  color: #000;
+  border-color: #fff;
+}
+
+@keyframes pulseUnmute {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 10px var(--avatar-glow);
+  }
+  50% {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.8), 0 0 24px var(--avatar-glow);
+  }
+}
+
 /* Scrubber / Progress Bar */
 .progress-container {
   position: relative;
@@ -1116,11 +1156,36 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-slow);
+  transition: transform var(--transition-slow), opacity 0.3s ease;
+}
+
+.roster-card-img.is-faded {
+  opacity: 0;
 }
 
 .roster-card:hover .roster-card-img {
   transform: scale(1.06);
+}
+
+.roster-card-video-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  pointer-events: none;
+  animation: fadeInPreview 0.3s ease-in-out;
+}
+
+@keyframes fadeInPreview {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .roster-card-overlay-badge {
