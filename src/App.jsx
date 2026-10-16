@@ -24,6 +24,7 @@ import {
 import confetti from 'canvas-confetti';
 import { AVATARS } from './data/avatars';
 import { playSound } from './utils/audioEffects';
+import { AVATAR_KNOWLEDGE_BASE } from './utils/aiResponses';
 
 export default function App() {
   const avatarsList = AVATARS;
@@ -32,18 +33,42 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.85);
+  const [volume, setVolume] = useState(() => {
+    try {
+      const v = localStorage.getItem('nexus_player_volume');
+      return v !== null ? parseFloat(v) : 0.85;
+    } catch {
+      return 0.85;
+    }
+  });
   const [isMuted, setIsMuted] = useState(true);
   const [hoveredCardAvatarId, setHoveredCardAvatarId] = useState(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isLooping, setIsLooping] = useState(true);
-  const [soundEffects, setSoundEffects] = useState(true);
+  const [soundEffects, setSoundEffects] = useState(() => {
+    try {
+      const s = localStorage.getItem('nexus_sound_effects');
+      return s !== null ? s === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showHotkeys, setShowHotkeys] = useState(false);
   const [notification, setNotification] = useState('');
 
-  // Reactions state
+  // Active question & AI answer for interview mode
+  const [activeQuestionData, setActiveQuestionData] = useState({
+    q: '',
+    answer: ''
+  });
+
+  // Reactions state with localStorage persistence
   const [reactions, setReactions] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nexus_avatar_reactions');
+      if (saved) return JSON.parse(saved);
+    } catch {}
     const init = {};
     AVATARS.forEach((a, i) => {
       init[a.id] = {
@@ -58,6 +83,7 @@ export default function App() {
     return init;
   });
 
+  const hoverTimeoutRef = useRef(null);
   const videoRef = useRef(null);
   const playerWrapperRef = useRef(null);
 
@@ -79,6 +105,42 @@ export default function App() {
     }
   }, [playbackSpeed, activeAvatarId]);
 
+  // Persist reactions in localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('nexus_avatar_reactions', JSON.stringify(reactions));
+    } catch {}
+  }, [reactions]);
+
+  // Persist settings in localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('nexus_player_volume', volume.toString());
+    } catch {}
+  }, [volume]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('nexus_sound_effects', soundEffects.toString());
+    } catch {}
+  }, [soundEffects]);
+
+  // Clean and debounced hover preview handlers (prevents mass downloads on mobile/quick cursor sweep)
+  const handleCardMouseEnter = (id) => {
+    if (typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+      return;
+    }
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredCardAvatarId(id);
+    }, 150);
+  };
+
+  const handleCardMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoveredCardAvatarId(null);
+  };
+
   // Toast notification helper
   const showToast = (msg) => {
     setNotification(msg);
@@ -91,6 +153,7 @@ export default function App() {
     setActiveAvatarId(id);
     setCurrentTime(0);
     setIsPlaying(true);
+    setActiveQuestionData({ q: '', answer: '' });
     setTimeout(() => {
       if (videoRef.current) {
         videoRef.current.currentTime = 0;
@@ -240,9 +303,35 @@ export default function App() {
     }
   };
 
-  // Interactive Question click (seek & play)
-  const handleAskQuestion = (time) => {
+  // Interactive Question click (seek & play with dynamic AI answer)
+  const handleAskQuestion = (timeOrItem, questionText) => {
     playSound('click', soundEffects);
+    let time = 0;
+    let qText = '';
+
+    if (typeof timeOrItem === 'object' && timeOrItem !== null) {
+      time = typeof timeOrItem.time === 'number' ? timeOrItem.time : 0;
+      qText = timeOrItem.q || '';
+    } else {
+      time = typeof timeOrItem === 'number' ? timeOrItem : 0;
+      qText = questionText || '';
+    }
+
+    if (!qText && activeAvatar?.interactiveQuestions) {
+      const match = activeAvatar.interactiveQuestions.find(iq => Math.abs(iq.time - time) < 0.5);
+      if (match) qText = match.q;
+    }
+
+    const kb = AVATAR_KNOWLEDGE_BASE[activeAvatarId];
+    const answer = (qText && kb?.defaultAnswers?.[qText])
+      ? kb.defaultAnswers[qText]
+      : (activeAvatar?.quote || '');
+
+    setActiveQuestionData({
+      q: qText,
+      answer: answer
+    });
+
     if (videoRef.current) {
       videoRef.current.currentTime = time;
       setCurrentTime(time);
@@ -250,7 +339,7 @@ export default function App() {
         videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }
-    showToast('Переход к ответу аватара');
+    showToast(qText ? `Ответ: "${qText.length > 28 ? qText.slice(0, 28) + '...' : qText}"` : 'Переход к ответу аватара');
   };
 
   // Reaction Click
@@ -556,7 +645,7 @@ export default function App() {
                             title={`Вопрос: ${iq.q}`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleAskQuestion(iq.time);
+                              handleAskQuestion(iq);
                             }}
                           />
                         ))}
@@ -766,7 +855,7 @@ export default function App() {
                         key={idx}
                         id={`btn-question-${idx}`}
                         className="question-chip"
-                        onClick={() => handleAskQuestion(item.time)}
+                        onClick={() => handleAskQuestion(item)}
                       >
                         <span>{item.q}</span>
                         <ChevronRight size={14} />
@@ -867,8 +956,8 @@ export default function App() {
                   >
                     <div
                       className="roster-card-media"
-                      onMouseEnter={() => setHoveredCardAvatarId(avatar.id)}
-                      onMouseLeave={() => setHoveredCardAvatarId(null)}
+                      onMouseEnter={() => handleCardMouseEnter(avatar.id)}
+                      onMouseLeave={handleCardMouseLeave}
                     >
                       <img
                         src={avatar.thumbnailSrc}
@@ -1001,6 +1090,14 @@ export default function App() {
 
               {/* Chat & Prompt Selector */}
               <div className="interview-chat-container">
+                {activeQuestionData.q && (
+                  <div className="chat-bubble-user">
+                    <div className="chat-user-message">
+                      <span className="chat-speaker-name">Вопрос</span>
+                      <p className="chat-text">{activeQuestionData.q}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="chat-bubble-ai">
                   <img
                     src={activeAvatar.thumbnailSrc}
@@ -1010,30 +1107,32 @@ export default function App() {
                   <div className="chat-ai-message">
                     <span className="chat-speaker-name">{activeAvatar.name} ({activeAvatar.role})</span>
                     <p className="chat-text">
-                      {activeAvatar.quote}
+                      {activeQuestionData.answer || AVATAR_KNOWLEDGE_BASE[activeAvatarId]?.greeting || activeAvatar.quote}
                     </p>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-                      Выберите интересующий вопрос ниже — я моментально перейду к раскрытию темы на видео:
+                      {activeQuestionData.q ? 'Нажмите другой вопрос ниже, чтобы переключить ответ:' : 'Выберите интересующий вопрос ниже — я моментально перейду к раскрытию темы на видео:'}
                     </span>
                   </div>
                 </div>
 
                 {/* Prompt Buttons */}
                 <div className="interactive-prompt-buttons">
-                  {activeAvatar.interactiveQuestions?.map((item, idx) => (
-                    <button
-                      key={idx}
-                      id={`prompt-question-${idx}`}
-                      className="prompt-btn"
-                      onClick={() => {
-                        handleAskQuestion(item.time);
-                        showToast(`Запущен ответ: "${item.q}"`);
-                      }}
-                    >
-                      <span>💬 {item.q}</span>
-                      <ArrowRight size={16} style={{ color: 'var(--avatar-accent)' }} />
-                    </button>
-                  ))}
+                  {activeAvatar.interactiveQuestions?.map((item, idx) => {
+                    const isSelected = activeQuestionData.q === item.q;
+                    return (
+                      <button
+                        key={idx}
+                        id={`prompt-question-${idx}`}
+                        className={`prompt-btn ${isSelected ? 'active-question' : ''}`}
+                        onClick={() => {
+                          handleAskQuestion(item);
+                        }}
+                      >
+                        <span>💬 {item.q}</span>
+                        <ArrowRight size={16} style={{ color: 'var(--avatar-accent)' }} />
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
