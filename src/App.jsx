@@ -85,13 +85,40 @@ export default function App() {
     setTimeout(() => setNotification(''), 2500);
   };
 
-  // Switch Avatar Handler
+  // Switch Avatar Handler with automatic immediate playback
   const handleSwitchAvatar = (id) => {
-    if (id === activeAvatarId) return;
     playSound('switch', soundEffects);
     setActiveAvatarId(id);
     setCurrentTime(0);
     setIsPlaying(true);
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlaying(true))
+            .catch(() => {
+              if (videoRef.current) {
+                videoRef.current.muted = true;
+                setIsMuted(true);
+                videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+              }
+            });
+        }
+      }
+    }, 40);
+  };
+
+  // Immediate Launch & Autoplay from Catalog
+  const selectAvatarFromCatalog = (id) => {
+    handleSwitchAvatar(id);
+    setActiveMode('cinema');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const target = avatarsList.find(a => a.id === id);
+    if (target) {
+      showToast(`Запуск: ${target.name} 🎬`);
+    }
   };
 
   // Next / Prev Avatar
@@ -836,10 +863,7 @@ export default function App() {
                       '--card-glow': avatar.glowColor,
                       '--avatar-accent': avatar.accentColor
                     }}
-                    onClick={() => {
-                      handleSwitchAvatar(avatar.id);
-                      setActiveMode('cinema');
-                    }}
+                    onClick={() => selectAvatarFromCatalog(avatar.id)}
                   >
                     <div
                       className="roster-card-media"
@@ -888,8 +912,14 @@ export default function App() {
                         <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
                           {avatar.stats.experience}
                         </span>
-                        <button className="roster-launch-btn">
-                          <span>Открыть плеер</span>
+                        <button
+                          className="roster-launch-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            selectAvatarFromCatalog(avatar.id);
+                          }}
+                        >
+                          <span>Смотреть видео</span>
                           <ArrowRight size={14} />
                         </button>
                       </div>
