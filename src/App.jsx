@@ -28,7 +28,7 @@ import { AVATAR_KNOWLEDGE_BASE } from './utils/aiResponses';
 
 export default function App() {
   const avatarsList = AVATARS;
-  const [activeAvatarId, setActiveAvatarId] = useState('biologist');
+  const [activeAvatarId, setActiveAvatarId] = useState('professor');
   const [activeMode, setActiveMode] = useState('cinema'); // 'cinema' | 'roster' | 'interview'
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
