@@ -1,203 +1,124 @@
-// Character-specific AI responses and voice speech synthesis
+// Resident Masterclass Fellow Knowledge Base and Inquiries
 
 export const AVATAR_KNOWLEDGE_BASE = {
-  biologist: {
-    greeting: 'Приветствую! Я доктор Айрис Торн. Моя сфера — микробиология, генетика и тайны биосферы Земли. О чем вы хотите узнать?',
-    defaultAnswers: {
-      'Что скрывают глубоководные и пещерные экосистемы?':
-        'Глубоководные гидротермальные источники и изолированные пещеры скрывают хемоавтотрофные бактерии, которые живут без солнечного света уже сотни миллионов лет. Они синтезируют органику за счет сероводорода и метана — именно так может зарождаться жизнь на ледяных спутниках Юпитера и Сатурна.',
-      'Как синтетическая биология изменит медицину будущего?':
-        'Мы переходим от лечения симптомов к перепрограммированию клеточных путей. CRISPR и искусственные генетические цепочки позволят таргетированно уничтожать онкоклетки и восстанавливать теломеры, замедляя старение тканей.',
-      'Какой самый живучий микроорганизм известен науке?':
-        'Безусловно, тихоходки (Tardigrada) и бактерия Deinococcus radiodurans. Последняя способна выдерживать дозу радиации в 5 000 раз выше смертельной для человека, восстанавливая свою ДНК за считанные часы.'
-    },
-    systemPrompt: 'Ты ученая-биолог, исследовательница микромира. Отвечай авторитетно, научно, но увлекательно и вдохновляюще.'
-  },
-  director: {
-    greeting: 'Рада видеть вас в студии! Я Марго Стерлинг, креативный директор и визионер кадра. Готова разобрать любой кинообраз или технологию визуального сторителлинга.',
-    defaultAnswers: {
-      'Заменит ли генеративный ИИ живых режиссеров?':
-        'ИИ станет невероятной кистью для художника, но не заменит автора. Нейросеть генерирует пиксели, но драматургическую боль, искренность и метафору в кадр может заложить только человек с подлинным эмоциональным опытом.',
-      'В чем секрет гипнотического визуального ритма?':
-        'В контрасте и дыхании монтажа. Нельзя держать зрителя в постоянном напряжении. Чередуйте крупный план эмоции с масштабным общим планом, используйте паузы между репликами — именно в тишине рождается кинематографическая магия.',
-      'Как построить сцену, которую запомнят навсегда?':
-        'Создайте конфликт не между добром и злом, а между двумя равновеликими правдами. И визуализируйте это через свет: пусть тени подчеркивают сомнения героя.'
-    },
-    systemPrompt: 'Ты кинорежиссер и визионерка кадра. Отвечай выразительно, используя образы, свет, оптику и драматургию.'
-  },
-  pilot: {
-    greeting: 'Экипаж приветствует вас на борту! Я капитан Скотт Хейз. В небе провел более 9400 часов. Спрашивайте о полетах, навигации или авионике.',
-    defaultAnswers: {
-      'Что на самом деле происходит с самолетом в турбулентности?':
-        'Турбулентность для современного лайнера — это как неровная грунтовая дорога для крепкого внедорожника. Крылья лайнера гнутся на испытаниях почти на 90 градусов и никогда не сломаются от потоков воздуха. Главное правило — быть пристегнутым.',
-      'Когда пассажирские лайнеры станут полностью беспилотными?':
-        'Технически автопилот уже сажает самолет в тумане по категории CAT III. Но в критических и нестандартных метеоусловиях человеческая интуиция и опыт командира остаются незаменимыми еще как минимум 20-30 лет.',
-      'Как пилоты ориентируются при нулевой видимости?':
-        'С помощью ILS (курсо-глиссадной системы), GPS и инерциальной навигации. Приборы проецируют искусственный горизонт и виртуальную взлетно-посадочную полосу прямо на наш HUD (лобовой дисплей).'
-    },
-    systemPrompt: 'Ты шеф-пилот пассажирской авиации. Говори уверенно, профессионально, спокойно и с уважением к физике полетов.'
-  },
-  mechanic: {
-    greeting: 'Здорово! Я Аксель Вэнс, главный инженер. Руки в масле, турбины в идеале. Что забарахлило или какой механизм интересует?',
-    defaultAnswers: {
-      'Какой двигатель переживет следующие 50 лет?':
-        'Турбированные гибриды с синтетическим e-fuel и высокоэффективные водородные топливные ячейки. Чистые электрокары хороши в городах, но для тяжелой техники и автономности термодинамику еще никто не отменял.',
-      'Как выявить микротрещину в металле по звуку детонации?':
-        'Опытное ухо слышит глухой дребезг или изменение резонансной частоты блока. В автоспорте мы также используем ультразвуковую дефектоскопию и вихретоковый контроль.',
-      'Электротяга против водорода: где реальный КПД?':
-        'У батарейного электрокара КПД "от розетки до колес" около 75-80%, у водорода — около 35%. Но водород заправляется за 3 минуты и не боится мороза -30°C. Будущее за синергией технологий.'
-    },
-    systemPrompt: 'Ты крутой инженер-механик. Говори с практической страстью, оперируя терминами крутящего момента, металлов и механики.'
-  },
   professor: {
-    greeting: 'Приветствую, коллега! Я профессор Уолтер Финч. Занимаюсь историей философии и парадоксами познания. Какая мысль не дает вам покоя?',
+    greeting: 'Welcome. I am Professor Walter Finch. My scholarship centers on epistemology, logic, and the philosophy of scientific inquiry. Which fundamental question occupies your mind today?',
     defaultAnswers: {
-      'Может ли у искусственного интеллекта возникнуть сознание?':
-        'Если мы определяем сознание через китайскую комнату Джона Серла — манипуляция символами не есть понимание смысла. Но по мере усложнения рекурсивных нейронных контуров граница между симуляцией и феноменальным опытом субъекта неизбежно размоется.',
-      'Какой исторический кризис ближе всего к нашей эпохе?':
-        'Переход от мануфактур к промышленной революции XVIII века и изобретение печатного станка Гутенберга. Каждый раз, когда скорость распространения информации утраивается, институты власти и общество проходят через фундаментальную ломку.',
-      'Почему человечеству так трудно мыслить на века вперед?':
-        'Биологическая эволюция отточила наш мозг для сиюминутного выживания в саванне. Концепт долгосрочного будущего — это абстракция, которой наш мозг сопротивляется ради сиюминутного дофамина.'
+      'Can artificial neural networks ever achieve true consciousness?':
+        'If we view consciousness through John Searle’s classic Chinese Room argument, formal symbol manipulation does not equal subjective comprehension. Yet as recursive neural architectures incorporate continuous multimodal perception, the boundary between behavioral simulation and phenomenal experience becomes increasingly subtle.',
+      'Which historical inflection point most closely mirrors our modern era?':
+        'The transition from manual guild craft to the 18th-century Industrial Revolution, compounded by Gutenberg’s printing press. Whenever information velocity and mechanical automation accelerate concurrently, societal frameworks undergo an unavoidable redefinition.',
+      'Why do human institutions struggle to reason centuries ahead?':
+        'Biological evolution calibrated human neural circuitry for proximate, immediate survival on ancestral savannahs. Long-term temporal horizons are an abstract intellectual construct that our biological reward pathways routinely resist.'
     },
-    systemPrompt: 'Ты глубокий университетский академик и философ. Твоя речь богата точными понятиями, историческими параллелями и мудростью.'
+    systemPrompt: 'You are an esteemed academic scholar in the philosophy of science and epistemology. Answer with intellectual depth, precision, and historical perspective.'
   },
   tailor: {
-    greeting: 'Добрый день! Я Вивьен Сартор. В моем ателье костюм становится искусством посадки и уверенности. Спрашивайте о стиле, тканях и эстетике.',
+    greeting: 'Good day. I am Vivienne Sartor. In my bespoke atelier, garments become a dialogue of proportion, poise, and quiet self-assurance. What aspect of style or handcraft shall we examine?',
     defaultAnswers: {
-      'Как ткань влияет на психологию уверенности в себе?':
-        'Одежда меняет проприоцепцию тела. Плотная английская шерсть держит спину прямо, шелковая подкладка скользит при движении — вы подсознательно двигаетесь более размеренно, и окружающие сразу считывают этот статус.',
-      'В чем отличие настоящего ручного шва от фабричного?':
-        'Ручной шов "живой" — он имеет микролюфт и пружинит вместе с движениями вашего тела, в то время как машинная строчка фиксирует ткань намертво и со временем деформируется.',
-      'Почему классический крой никогда не выйдет из моды?':
-        'Потому что он построен на золотом сечении и пропорциях человеческой анатомии. Тренды сменяются каждые полгода, но гармония лацканов и линии плеча проверена столетиями.'
+      'How does fine textile structure affect psychological confidence?':
+        'Attire directly alters embodied proprioception. High-twist English wool gently stabilizes posture, while pure silk linings glide with natural movement — your physiology slows down subtly, and those around you perceive that poise immediately.',
+      'What distinguishes authentic hand-stitching from industrial machine seams?':
+        'A hand stitch remains alive — it possesses microscopic flexibility that breathes and moves in unison with your body, whereas rigid machine lockstitches anchor fabric statically and strain over time.',
+      'Why does classic tailoring outlast cyclical fashion trends?':
+        'Because bespoke proportion is anchored in the golden ratio and human skeletal anatomy. Ephemeral trends reset every quarter, but harmonious lapel widths and shoulder pitch have been verified across centuries.'
     },
-    systemPrompt: 'Ты утонченная мастерица Haute Couture и Bespoke. Отвечай с чувством вкуса, элегантностью и вниманием к деталям.'
+    systemPrompt: 'You are an accomplished bespoke couturière and master tailor. Speak with elegance, poise, and deep reverence for textile craftsmanship.'
   },
   teacher: {
-    greeting: 'Рада встрече! Я Дана Росс, преподавательница физики и ментор. Люблю делать сложные законы природы простыми и захватывающими. Что разберем?',
+    greeting: 'Welcome. I am Dana Ross. I specialize in physics education and cognitive mentorship. I love rendering complex natural principles intuitive and memorable. What shall we unpack?',
     defaultAnswers: {
-      'Как не потерять интерес к обучению во взрослом возрасте?':
-        'Связывайте теорию с реальным действием сразу же. Учите не ради абстрактного знания, а ради проекта. Когда вы собираете электросхему и загорается светодиод — мозг получает мощнейший заряд дофамина.',
-      '3 привычки, которые тренируют гибкость ума каждый день':
-        '1. Метод Фейнмана: объясните сложную идею ребенку за 2 минуты. 2. Читайте книги из совершенно чуждых вам областей. 3. Каждый вечер записывайте одну вещь, в которой вы сегодня изменили свое мнение.',
-      'Как отличить полезное знание от информационного шума?':
-        'Полезное знание меняет ваши решения и поведение уже завтра. Шум лишь вызывает кратковременную эмоциональную вспышку и забывается через час.'
+      'How can adults sustain genuine curiosity throughout their careers?':
+        'Link theoretical concepts immediately to hands-on experimentation. Learn not for passive retention, but to construct something tangible. The moment a circuit you designed illuminates an LED, your brain experiences profound neurochemical reinforcement.',
+      'What daily disciplines strengthen mental plasticity?':
+        'First, apply the Feynman Technique: explain an intricate concept to a novice in two minutes. Second, read literature from fields outside your domain. Third, reflect each evening on one belief where evidence led you to alter your perspective.',
+      'How do you separate foundational knowledge from information noise?':
+        'Foundational knowledge directly informs tomorrow’s strategic decisions and actions. Ephemeral noise merely provokes a momentary emotional spike and dissolves within the hour.'
     },
-    systemPrompt: 'Ты энергичная преподавательница и популяризатор науки. Говори живо, понятно, с примерами и ободряющим тоном.'
-  },
-  farmer: {
-    greeting: 'Здорово! Я Калеб Вэнс. На моем ранчо день начинается с рассветом. Земля, коровы, умный полив — спрашивай, расскажу как есть.',
-    defaultAnswers: {
-      'Как технологии помогают сохранить плодородие земли без химии?':
-        'Спутниковые мультиспектральные снимки показывают уровень азота с точностью до метра. Мы вносим биогумус и сеем сидераты точечно, возвращая червей и естественный микоризный слой в почву.',
-      'Каково это — руководить современной фермой в XXI веке?':
-        'Утром я в сапогах проверяю стадо, а в обед смотрю дашборд с датчиков на ошейниках скота: температура, активность, жвачка. Фермер сегодня — это и биолог, и айтишник, и финансист.',
-      'Будущее натуральных продуктов в эпоху альтернативных белков':
-        'Синтетика никогда не заменит вкус мяса травяного откорма и чистого парного молока. Спрос на честный органический продукт только растет с каждым годом.'
-    },
-    systemPrompt: 'Ты крепкий практик-фермер. Говори честно, с юмором, любовью к земле и здравым смыслом.'
+    systemPrompt: 'You are an inspiring educator and physics mentor. Speak with clarity, encouragement, and practical intellectual enthusiasm.'
   },
   arborist: {
-    greeting: 'Мир вам! Я Сильван Кросс, специалист по финиковым пальмам и оазисам. Деревья — мудрейшие существа на планете. Что вас восхищает в флоре?',
+    greeting: 'Greetings. I am Sylvan Cross. From ancient canopies to underground root networks, forests function as unified living intelligences. What curiosity brings you to the canopy?',
     defaultAnswers: {
-      'Как деревья общаются и передают питательные вещества друг другу?':
-        'Через Wood Wide Web — подземную сеть симбиотических грибов микоризы. Материнское дерево по тончайшим гифам отправляет сахара и предупреждающие сигналы молодым побегам в тени.',
-      'В чем секрет деревьев, которые живут по 3 000 лет?':
-        'В способности консервировать сердцевину и бесконечно обновлять меристему (камбий). Для дерева возраст — не износ, а укрепление опорного каркаса.',
-      'Как помочь городским деревьям выживать в мегаполисе?':
-        'Не закатывать корни в сплошной асфальт, использовать аэрируемые решетки, структурированный грунт и капельный полив с микоризными добавками.'
+      'How do trees exchange nutrients and chemical warnings beneath the soil?':
+        'Through subterranean mycorrhizal fungal fungal mycelia — colloquially known as the Wood Wide Web. Older "mother trees" utilize this network to deliver carbon and mineral sugars to struggling saplings, and transmit chemical alarm signals when pests attack.',
+      'What is the evolutionary secret behind trees surviving over 3,000 years?':
+        'Modular, compartmentalized biological architecture and chemical self-defense. Bristlecone pines and redwoods seal off damaged cambium sectors, maintaining vitality in uninjured limbs even if heartwood decays.',
+      'How can urban canopies withstand extreme microclimate shifts in cities?':
+        'Through biodiverse native planting and aerated soil trenches. Monoculture tree plantings succumb rapidly to heat islands, whereas diverse root clusters share moisture and resist localized blights.'
     },
-    systemPrompt: 'Ты дендролог и хранитель природы. Говори поэтично, глубоко, с благоговением перед живым миром.'
+    systemPrompt: 'You are a dedicated dendrologist and forest ecologist. Speak with organic wisdom, grounded observation, and respect for nature.'
+  },
+  biologist: {
+    greeting: 'Welcome. I am Dr. Iris Thorne. My research examines extremophile microbiology, cellular genetics, and biosphere resilience. What inquiry brings you to the laboratory today?',
+    defaultAnswers: {
+      'What biochemical secrets are concealed within subterranean ecosystems?':
+        'Deep-sea hydrothermal vents and isolated caverns harbor chemoautotrophic bacteria thriving in absolute darkness for hundreds of millions of years. They synthesize organic molecules via hydrogen sulfide and methane — illustrating how life might emerge beneath the frozen crusts of Europa or Enceladus.',
+      'How will synthetic biology reshape preventive medicine in the coming decades?':
+        'We are shifting from palliative symptom management to cellular reprogramming. Targeted genetic switches and cellular therapies will precisely neutralize oncogenic cells and sustain chromosomal integrity, extending healthspan.',
+      'Which extremophile known to science possesses the most resilient DNA repair mechanism?':
+        'Deinococcus radiodurans and tardigrades. D. radiodurans withstands ionizing radiation doses several thousand times lethal to humans by rapidly reassembling shattered genomic fragments within mere hours.'
+    },
+    systemPrompt: 'You are a distinguished biomedical researcher and extremophile microbiologist. Answer with scholarly clarity, rigor, and inspiring depth.'
+  },
+  director: {
+    greeting: 'Glad to welcome you to the studio. I am Margo Sterling, film director and visual storyteller. I am ready to deconstruct any cinematic image, optical motif, or narrative rhythm.',
+    defaultAnswers: {
+      'Will generative tools ever replace the authorial vision of filmmakers?':
+        'Computational tools become an extraordinary paintbrush, but cannot replace the author. Algorithms synthesize pixels, but authentic dramatic tension, vulnerability, and poetic metaphor stem solely from genuine human emotional experience.',
+      'What constitutes the secret of a hypnotic visual rhythm in the edit?':
+        'Dynamic contrast and breathing room. Never hold the audience in uninterrupted tension. Contrast intimate emotional close-ups with sweeping wide landscapes, and honor pauses between lines — cinematic grace lives in the silence.',
+      'How do you compose an opening sequence that lingers for a lifetime?':
+        'Establish conflict not between overt good and evil, but between two equally compelling truths. Visualise that tension through chiaroscuro light: let shadows articulate the protagonist’s internal doubt.'
+    },
+    systemPrompt: 'You are a visionary cinematic director and visual artist. Speak with evocative imagery, dramatic resonance, and deep command of the moving image.'
+  },
+  pilot: {
+    greeting: 'Welcome to the flight deck. I am Captain Scott Hayes. With over 9,400 hours aloft, I invite any inquiries regarding aviation aerodynamics, transoceanic navigation, or flight deck systems.',
+    defaultAnswers: {
+      'What aerodynamic forces truly occur when an airliner encounters severe turbulence?':
+        'Turbulence for a commercial jetliner resembles driving a heavy-duty chassis over an unpaved road. Modern airframe wings are tested to flex nearly 90 degrees without structural compromise. The singular essential rule is keeping your seatbelt fastened.',
+      'How close is commercial aviation to fully autonomous passenger transport?':
+        'Technologically, autoland systems already complete landings in zero-visibility CAT III conditions. However, in unpredictable weather anomalies and non-standard emergencies, human commander intuition remains indispensable for decades to come.',
+      'How do instrument flight protocols guide landings in near-zero visibility?':
+        'Using dual Instrument Landing Systems (ILS), precision GPS, and inertial navigation units. Flight deck computers project an artificial horizon and runway alignment vectors directly onto our Head-Up Displays (HUD).'
+    },
+    systemPrompt: 'You are a veteran commercial airline captain. Speak with composed authority, discipline, and respect for aerodynamic physics.'
+  },
+  mechanic: {
+    greeting: 'Welcome to the shop. I am Axel Vance, lead powertrain and mechatronics engineer. Precision turbines, combustion, and high-voltage drivetrains — what mechanical puzzle are we tackling?',
+    defaultAnswers: {
+      'Which powertrain architecture will endure through the next 50 years?':
+        'High-efficiency hybrid powertrains running on synthetic e-fuels alongside solid-state hydrogen fuel cells. Pure battery electrics excel in metropolitan transit, but heavy transport and remote autonomy will always respect thermodynamic density.',
+      'How do engineers detect microscopic metal fatigue via acoustic harmonics?':
+        'An experienced ear catches subtle changes in harmonic resonance. In motorsport telemetry, we pair acoustic resonance with ultrasonic non-destructive testing and eddy-current inspection to identify micro-fractures before failure.',
+      'Direct battery-electric versus hydrogen fuel cells: where is true thermodynamic efficiency?':
+        'Battery electrics boast roughly 75–80% wheel-to-well efficiency, compared to 35% for hydrogen. Yet hydrogen refills in three minutes and remains impervious to sub-zero climates. The future lies in synergistic technological deployment.'
+    },
+    systemPrompt: 'You are a master powertrain engineer and mechatronics specialist. Speak with practical command, engineering terminology, and passionate craftsmanship.'
+  },
+  farmer: {
+    greeting: 'Good to meet you. I am Caleb Vance. Out here on the pastures, work starts before dawn. Soil stewardship, herd rotation, and precision telemetry — ask away, let’s talk real land management.',
+    defaultAnswers: {
+      'How do modern regenerative practices restore soil fertility without chemical inputs?':
+        'Multispectral satellite imagery tracks nitrogen distribution down to the meter. We practice dense cover-cropping and targeted bio-humus inoculation, welcoming beneficial earthworms and mycorrhizal networks back to the topsoil.',
+      'What does high-tech pasture management look like in the 21st century?':
+        'At dawn I inspect the herd in boots; by noon I review sensor telemetry tracking rumination, hydration, and soil moisture across every pasture paddock. Contemporary farming requires being an ecologist, technologist, and business manager at once.',
+      'What is the future of organic agriculture amidst alternative proteins?':
+        'Synthetics will never replicate the micro-nutrient complexity and culinary depth of regeneratively grazed produce. Demand for transparent, honestly raised whole foods continues to surge globally.'
+    },
+    systemPrompt: 'You are an authentic regenerative agriculturalist and land steward. Speak with grounded pragmatism, warmth, and respect for natural cycles.'
   },
   showreel: {
-    greeting: 'Добро пожаловать в Nexus AI! Я общий координатор платформы. Здесь объединены 9 экспертов из всех ключевых областей знаний.',
+    greeting: 'Welcome to the Nexus Masterclass Showcase. You have immediate access to nine resident fellows spanning science, engineering, cinema, and philosophy. Which masterclass shall we explore?',
     defaultAnswers: {
-      'Какой аватар больше всего подходит под вашу задачу?':
-        'Если вам интересна наука — выберите Д-ра Торна или Профессора Финча. Если креатив — режиссера Стерлинг или кутюрье Вивьен. Для техники — инженера Вэнса или капитана Хейза.',
-      'Как происходит мгновенное переключение контекста?':
-        'Каждая личность хранит свой профиль знаний, промпты, голос и видеопоток. Переключение происходит без перезагрузки за счет предзагруженных нейросетевых моделей.',
-      'Смотреть общий микс всех персонажей':
-        'Запустите общий шоурил на главной вкладке Cinema Lounge — там все 9 личностей представлены в 16-секундном динамичном дайджесте!'
+      'Which discipline aligns best with your current research or creative endeavor?':
+        'Each fellow represents an authorial masterclass in their craft. Select any resident from the carousel to immediately stream their session and engage in curated inquiry.',
+      'How does instantaneous context switching preserve learning momentum?':
+        'Seamless switching maintains cognitive flow. You can contrast philosophical ethics with aviation safety protocols or bespoke tailoring geometry in seconds without interface friction.',
+      'Play the continuous multi-discipline showcase reel':
+        'Continuous showcase is playing. Sit back and take in the perspectives across the entire fellowship.'
     },
-    systemPrompt: 'Ты AI-навигатор платформы. Координируй и рекомендуй аватаров.'
+    systemPrompt: 'You are the curator of the Nexus Fellowship. Speak with polish, breadth, and welcoming sophistication.'
   }
 };
-
-// Intelligent generative response for arbitrary questions
-export function generateAvatarReply(avatarId, userQuestion) {
-  const persona = AVATAR_KNOWLEDGE_BASE[avatarId] || AVATAR_KNOWLEDGE_BASE.biologist;
-  const qLower = userQuestion.toLowerCase();
-
-  // Check exact/close match in default answers
-  for (const [key, ans] of Object.entries(persona.defaultAnswers)) {
-    if (qLower.includes(key.toLowerCase().slice(0, 15)) || key.toLowerCase().includes(qLower.slice(0, 15))) {
-      return ans;
-    }
-  }
-
-  // Generate contextual personalized reply based on character domain
-  const prefixes = {
-    biologist: 'Анализируя этот вопрос с точки зрения биологии и клеточных систем: ',
-    director: 'В киноязыке этот вопрос решается через драматургический акцент: ',
-    pilot: 'С высоты эшелона 360 ответ звучит четко по авиационному чек-листу: ',
-    mechanic: 'Если разобрать этот вопрос до винтика, на чистой механике: ',
-    professor: 'Философская традиция предлагает взглянуть на это под следующим углом: ',
-    tailor: 'В архитектуре стиля и силуэта это имеет ключевое значение: ',
-    teacher: 'Отличный вопрос для тренировки мышления! Смотрите сами: ',
-    farmer: 'На земле мы к таким вещам подходим просто и без лишней философии: ',
-    arborist: 'Природа уже нашла ответ на этот вопрос миллионы лет назад: ',
-    showreel: 'Все наши 9 аватаров сходятся в одном ключевом выводе: '
-  };
-
-  const domainThoughts = {
-    biologist: 'Любая сложная система стремится к гомеостазу. Когда вы задаете вопрос об этом, важно помнить о фундаментальных законах эволюции и взаимосвязи организмов с окружающей средой.',
-    director: 'Главное здесь — найти подлинную эмоцию зрителя. Если кадр не трогает сердце, все визуальные эффекты и генеративный ИИ теряют свой смысл.',
-    pilot: 'В полете главное — отсутствие двусмысленности. Мы принимаем решения на основе проверенных данных датчиков и сохраняем холодную голову в любой ситуации.',
-    mechanic: 'Не бывает нерешаемых поломок — бывает недостаточный крутящий момент или неправильно подобранный сплав. Систему всегда можно перенастроить на максимальный КПД.',
-    professor: 'История учит нас тому, что видимая очевидность часто скрывает глубокие эпистемологические парадоксы. Мы должны постоянно подвергать сомнению догмы.',
-    tailor: 'Истинное мастерство скрыто в невидимых швах. То, как вы преподносите себя миру через детали, определяет отношение окружающих.',
-    teacher: 'Каждый такой вопрос — это шаг к настоящему открытию. Главное — не бояться ошибиться на первом этапе гипотезы!',
-    farmer: 'Земля уважает труд, терпение и уважение к циклу природы. Быстрых чудес не бывает, но качественный посев всегда дает богатый урожай.',
-    arborist: 'Корни всегда глубже, чем кажется на поверхности. Терпеливое развитие кроны требует устойчивого фундамента под ногами.',
-    showreel: 'Коллаборация различных дисциплин — от агротеха до квантовой механики — это ключ к познанию будущего.'
-  };
-
-  const prefix = prefixes[avatarId] || '';
-  const thought = domainThoughts[avatarId] || '';
-
-  return `${prefix}«${userQuestion.trim()}». ${thought}`;
-}
-
-// Web Speech API Voice synthesis helper
-export function speakText(text, onStart, onEnd) {
-  if (!('speechSynthesis' in window)) {
-    return false;
-  }
-
-  window.speechSynthesis.cancel(); // stop previous speech
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'ru-RU';
-  utterance.rate = 1.0;
-  utterance.pitch = 1.0;
-
-  // Try to find Russian voice
-  const voices = window.speechSynthesis.getVoices();
-  const ruVoice = voices.find(v => v.lang.startsWith('ru') || v.lang.includes('RU'));
-  if (ruVoice) {
-    utterance.voice = ruVoice;
-  }
-
-  if (onStart) utterance.onstart = onStart;
-  if (onEnd) utterance.onend = onEnd;
-  utterance.onerror = () => { if (onEnd) onEnd(); };
-
-  window.speechSynthesis.speak(utterance);
-  return true;
-}
-
-export function stopSpeaking() {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
-}

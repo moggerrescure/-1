@@ -12,24 +12,26 @@ import {
   MessageSquare,
   HelpCircle,
   Heart,
-  Flame,
-  Brain,
+  Bookmark,
   Share2,
   ChevronRight,
   ChevronLeft,
   Compass,
   Radio,
-  ArrowRight
+  ArrowRight,
+  Briefcase,
+  X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { AVATARS } from './data/avatars';
 import { playSound } from './utils/audioEffects';
 import { AVATAR_KNOWLEDGE_BASE } from './utils/aiResponses';
+import MultiRoleStudio from './components/MultiRoleStudio';
 
 export default function App() {
   const avatarsList = AVATARS;
   const [activeAvatarId, setActiveAvatarId] = useState('professor');
-  const [activeMode, setActiveMode] = useState('cinema'); // 'cinema' | 'roster' | 'interview'
+  const [activeMode, setActiveMode] = useState('cinema'); // 'cinema' | 'roster' | 'interview' | 'multirole'
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -180,7 +182,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const target = avatarsList.find(a => a.id === id);
     if (target) {
-      showToast(`Запуск: ${target.name} 🎬`);
+      showToast(`Now Playing: ${target.name}`);
     }
   };
 
@@ -278,7 +280,7 @@ export default function App() {
         setVolume(0.85);
         videoRef.current.volume = 0.85;
       }
-      showToast(nextMuted ? 'Звук выключен' : 'Звук включен 🔊');
+      showToast(nextMuted ? 'Audio muted' : 'Audio unmuted');
     }
   };
 
@@ -288,7 +290,7 @@ export default function App() {
     const speeds = [0.75, 1, 1.25, 1.5];
     const nextSpeed = speeds[(speeds.indexOf(playbackSpeed) + 1) % speeds.length];
     setPlaybackSpeed(nextSpeed);
-    showToast(`Скорость: ${nextSpeed}x`);
+    showToast(`Speed: ${nextSpeed}x`);
   };
 
   // Fullscreen Toggle
@@ -339,17 +341,17 @@ export default function App() {
         videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }
-    showToast(qText ? `Ответ: "${qText.length > 28 ? qText.slice(0, 28) + '...' : qText}"` : 'Переход к ответу аватара');
+    showToast(qText ? `Topic: "${qText.length > 28 ? qText.slice(0, 28) + '...' : qText}"` : 'Jumped to chapter');
   };
 
   // Reaction Click
   const handleReaction = (type) => {
     playSound('react', soundEffects);
     confetti({
-      particleCount: 40,
-      spread: 60,
+      particleCount: 30,
+      spread: 50,
       origin: { y: 0.8 },
-      colors: [activeAvatar.accentColor, '#ffffff', '#ec4899', '#38bdf8']
+      colors: [activeAvatar.accentColor, '#ffffff', '#2997ff']
     });
 
     setReactions(prev => {
@@ -371,7 +373,7 @@ export default function App() {
   const handleShare = () => {
     playSound('click', soundEffects);
     navigator.clipboard?.writeText(window.location.href);
-    showToast('Ссылка на аватара скопирована!');
+    showToast('Fellow link copied to clipboard');
   };
 
   // Global Keyboard Shortcuts
@@ -401,7 +403,7 @@ export default function App() {
       } else if (e.code === 'KeyF') {
         toggleFullscreen();
       } else if (e.code === 'KeyC') {
-        setActiveMode(m => (m === 'cinema' ? 'roster' : m === 'roster' ? 'interview' : 'cinema'));
+        setActiveMode(m => (m === 'cinema' ? 'roster' : m === 'roster' ? 'interview' : m === 'interview' ? 'multirole' : 'cinema'));
       }
     };
 
@@ -419,16 +421,17 @@ export default function App() {
 
   // Filtered Avatars
   const categories = [
-    { id: 'all', label: 'Все персоналии' },
-    { id: 'science', label: 'Наука & Биология' },
-    { id: 'cinema', label: 'Кино & Медиа' },
-    { id: 'aviation', label: 'Авиация' },
-    { id: 'engineering', label: 'Инженерия' },
-    { id: 'academic', label: 'Академики' },
-    { id: 'fashion', label: 'Мода & Стиль' },
-    { id: 'education', label: 'Педагогика' },
-    { id: 'ecology', label: 'Экология' },
-    { id: 'agriculture', label: 'Агротех' }
+    { id: 'all', label: 'All Disciplines' },
+    { id: 'academic', label: 'Academic Science' },
+    { id: 'fashion', label: 'Style & Haute Couture' },
+    { id: 'education', label: 'Pedagogy & Mentorship' },
+    { id: 'ecology', label: 'Dendrology & Ecology' },
+    { id: 'science', label: 'Biology & Medicine' },
+    { id: 'cinema', label: 'Cinema & Visual Arts' },
+    { id: 'aviation', label: 'Aviation & Aerodynamics' },
+    { id: 'engineering', label: 'Engineering & Mechatronics' },
+    { id: 'agriculture', label: 'Agronomy & Stewardship' },
+    { id: 'showcase', label: 'Anthology' }
   ];
 
   const filteredAvatars = categoryFilter === 'all'
@@ -463,7 +466,7 @@ export default function App() {
           backdropFilter: 'blur(10px)',
           animation: 'fadeIn 0.2s ease'
         }}>
-          ✨ {notification}
+          {notification}
         </div>
       )}
 
@@ -474,15 +477,18 @@ export default function App() {
             <Radio size={22} />
           </div>
           <div className="brand-text-wrap">
-            <h1 className="brand-title">
-              NEXUS <span style={{ color: 'var(--avatar-accent)', fontWeight: 300 }}>//</span> AVATARS
-            </h1>
-            <span className="brand-subtitle">Interactive AI Video Platform</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <h1 className="brand-title">
+                NEXUS <span style={{ color: 'var(--avatar-accent)', fontWeight: 300 }}>//</span> STUDIO
+              </h1>
+              <span className="brand-hdr-badge">CINEMA 4K</span>
+            </div>
+            <span className="brand-subtitle">Curated Masterclass Perspectives</span>
           </div>
         </div>
 
         {/* Navigation Modes */}
-        <nav className="nav-modes" aria-label="Режимы просмотра">
+        <nav className="nav-modes" aria-label="Viewing Modes">
           <button
             id="tab-cinema-mode"
             className={`mode-tab-btn ${activeMode === 'cinema' ? 'active' : ''}`}
@@ -497,7 +503,7 @@ export default function App() {
             onClick={() => { playSound('click', soundEffects); setActiveMode('roster'); }}
           >
             <Users size={16} />
-            <span>Каталог Аватаров ({avatarsList.length})</span>
+            <span>Directory ({avatarsList.length})</span>
           </button>
           <button
             id="tab-interview-mode"
@@ -505,7 +511,16 @@ export default function App() {
             onClick={() => { playSound('click', soundEffects); setActiveMode('interview'); }}
           >
             <MessageSquare size={16} />
-            <span>Интервью & Q&A</span>
+            <span>Masterclass & Q&A</span>
+          </button>
+          <button
+            id="tab-multirole-mode"
+            className={`mode-tab-btn ${activeMode === 'multirole' ? 'active' : ''}`}
+            onClick={() => { playSound('click', soundEffects); setActiveMode('multirole'); }}
+          >
+            <Briefcase size={16} />
+            <span>Solo Avatar</span>
+            <span className="solo-tab-badge">Woman • Man</span>
           </button>
         </nav>
 
@@ -513,7 +528,7 @@ export default function App() {
         <div className="header-actions">
           <div className="live-badge">
             <span className="pulse-dot" />
-            <span>{avatarsList.length} AI ON AIR</span>
+            <span>{avatarsList.length} FELLOWS LIVE</span>
           </div>
 
           <button
@@ -521,9 +536,9 @@ export default function App() {
             className={`icon-btn ${soundEffects ? 'active' : ''}`}
             onClick={() => {
               setSoundEffects(!soundEffects);
-              showToast(soundEffects ? 'Звуковые эффекты выключены' : 'SFX включены');
+              showToast(soundEffects ? 'Audio cues disabled' : 'Audio cues enabled');
             }}
-            title="Звуковые эффекты переключения"
+            title="Toggle audio cues"
           >
             <Sparkles size={18} />
           </button>
@@ -532,7 +547,7 @@ export default function App() {
             id="btn-help-hotkeys"
             className="icon-btn"
             onClick={() => { playSound('click', soundEffects); setShowHotkeys(true); }}
-            title="Горячие клавиши"
+            title="Keyboard shortcuts"
           >
             <HelpCircle size={18} />
           </button>
@@ -580,10 +595,10 @@ export default function App() {
                         e.stopPropagation();
                         toggleMute();
                       }}
-                      title="Включить звук видео (M)"
+                      title="Unmute audio (M)"
                     >
                       <VolumeX size={15} />
-                      <span>Включить звук</span>
+                      <span>Unmute</span>
                     </button>
                   )}
 
@@ -612,7 +627,7 @@ export default function App() {
                       id="btn-center-play"
                       className="center-play-trigger"
                       onClick={togglePlay}
-                      aria-label="Воспроизвести"
+                      aria-label="Play video"
                     >
                       <Play size={32} fill="#fff" />
                     </button>
@@ -624,7 +639,7 @@ export default function App() {
                     <div
                       className="progress-container"
                       onClick={handleSeek}
-                      title="Кликните для перемотки"
+                      title="Click to seek"
                     >
                       <div className="progress-track">
                         <div
@@ -642,7 +657,7 @@ export default function App() {
                             key={idx}
                             className="timeline-marker"
                             style={{ left: `${(iq.time / (duration || 20)) * 100}%` }}
-                            title={`Вопрос: ${iq.q}`}
+                            title={`Inquiry: ${iq.q}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleAskQuestion(iq);
@@ -659,7 +674,7 @@ export default function App() {
                           id="btn-player-play-pause"
                           className="ctrl-btn"
                           onClick={togglePlay}
-                          title={isPlaying ? 'Пауза (Пробел)' : 'Воспроизведение (Пробел)'}
+                          title={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
                         >
                           {isPlaying ? <Pause size={18} /> : <Play size={18} fill="#fff" />}
                         </button>
@@ -668,7 +683,7 @@ export default function App() {
                           id="btn-prev-avatar"
                           className="ctrl-btn"
                           onClick={handlePrevAvatar}
-                          title="Предыдущий аватар (Shift + ←)"
+                          title="Previous Fellow (Shift + ←)"
                         >
                           <ChevronLeft size={18} />
                         </button>
@@ -677,7 +692,7 @@ export default function App() {
                           id="btn-next-avatar"
                           className="ctrl-btn"
                           onClick={handleNextAvatar}
-                          title="Следующий аватар (Shift + →)"
+                          title="Next Fellow (Shift + →)"
                         >
                           <ChevronRight size={18} />
                         </button>
@@ -687,7 +702,7 @@ export default function App() {
                             id="btn-player-mute"
                             className="ctrl-btn"
                             onClick={toggleMute}
-                            title="Вкл/Выкл звук (M)"
+                            title="Mute / Unmute (M)"
                           >
                             {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
                           </button>
@@ -699,7 +714,7 @@ export default function App() {
                             value={isMuted ? 0 : volume}
                             onChange={handleVolumeChange}
                             className="volume-slider"
-                            title="Громкость (Стрелки Вверх/Вниз)"
+                            title="Volume (Arrow keys)"
                           />
                         </div>
 
@@ -713,7 +728,7 @@ export default function App() {
                           id="btn-playback-speed"
                           className="speed-badge"
                           onClick={cycleSpeed}
-                          title="Скорость воспроизведения"
+                          title="Playback speed"
                         >
                           {playbackSpeed}x
                         </button>
@@ -723,9 +738,9 @@ export default function App() {
                           className={`ctrl-btn ${isLooping ? 'active' : ''}`}
                           onClick={() => {
                             setIsLooping(!isLooping);
-                            showToast(isLooping ? 'Повтор выключен' : 'Повтор включен');
+                            showToast(isLooping ? 'Loop disabled' : 'Loop enabled');
                           }}
-                          title="Повтор видео"
+                          title="Loop playback"
                         >
                           <RotateCcw size={16} />
                         </button>
@@ -734,7 +749,7 @@ export default function App() {
                           id="btn-player-fullscreen"
                           className="ctrl-btn"
                           onClick={toggleFullscreen}
-                          title="На весь экран (F)"
+                          title="Fullscreen (F)"
                         >
                           <Maximize size={18} />
                         </button>
@@ -749,10 +764,10 @@ export default function App() {
                 <div className="dock-header-row">
                   <h2 className="dock-title">
                     <Compass size={16} style={{ color: 'var(--avatar-accent)' }} />
-                    Быстрый выбор аватара
+                    Featured Fellows
                   </h2>
                   <span className="dock-shortcuts-hint">
-                    Кликните для моментального переключения • Shift + ← / →
+                    Click to switch • Shift + ← / →
                   </span>
                 </div>
 
@@ -824,15 +839,15 @@ export default function App() {
                 <div className="stats-matrix">
                   <div className="stat-cell">
                     <span className="stat-value">{activeAvatar.stats.experience}</span>
-                    <span className="stat-label">Опыт</span>
+                    <span className="stat-label">Experience</span>
                   </div>
                   <div className="stat-cell">
                     <span className="stat-value">{activeAvatar.duration}</span>
-                    <span className="stat-label">Хронометраж</span>
+                    <span className="stat-label">Duration</span>
                   </div>
                   <div className="stat-cell">
                     <span className="stat-value">{activeAvatar.voiceType.split(',')[0]}</span>
-                    <span className="stat-label">Голос</span>
+                    <span className="stat-label">Voice Timbre</span>
                   </div>
                 </div>
 
@@ -847,7 +862,7 @@ export default function App() {
                 <div className="interactive-section">
                   <h3 className="interactive-title">
                     <MessageSquare size={14} />
-                    Спросить аватара (Интерактив)
+                    Masterclass Inquiries
                   </h3>
                   <div className="questions-list">
                     {activeAvatar.interactiveQuestions?.map((item, idx) => (
@@ -871,7 +886,7 @@ export default function App() {
                       id="btn-react-like"
                       className={`reaction-btn ${currentReactions.userLiked ? 'active' : ''}`}
                       onClick={() => handleReaction('likes')}
-                      title="Нравится"
+                      title="Appreciate"
                     >
                       <Heart size={14} fill={currentReactions.userLiked ? '#fb7185' : 'none'} />
                       <span>{currentReactions.likes}</span>
@@ -881,9 +896,9 @@ export default function App() {
                       id="btn-react-mindblown"
                       className={`reaction-btn ${currentReactions.userMindblown ? 'active' : ''}`}
                       onClick={() => handleReaction('mindblown')}
-                      title="Поразительно"
+                      title="Inspiring"
                     >
-                      <Flame size={14} fill={currentReactions.userMindblown ? '#f59e0b' : 'none'} />
+                      <Sparkles size={14} fill={currentReactions.userMindblown ? '#38bdf8' : 'none'} />
                       <span>{currentReactions.mindblown}</span>
                     </button>
 
@@ -891,9 +906,9 @@ export default function App() {
                       id="btn-react-insightful"
                       className={`reaction-btn ${currentReactions.userInsightful ? 'active' : ''}`}
                       onClick={() => handleReaction('insightful')}
-                      title="Инсайт"
+                      title="Bookmark Insight"
                     >
-                      <Brain size={14} fill={currentReactions.userInsightful ? '#a855f7' : 'none'} />
+                      <Bookmark size={14} fill={currentReactions.userInsightful ? '#a855f7' : 'none'} />
                       <span>{currentReactions.insightful}</span>
                     </button>
                   </div>
@@ -902,7 +917,7 @@ export default function App() {
                     id="btn-share-avatar"
                     className="icon-btn"
                     onClick={handleShare}
-                    title="Поделиться аватаром"
+                    title="Share fellow profile"
                   >
                     <Share2 size={16} />
                   </button>
@@ -919,9 +934,9 @@ export default function App() {
           <div className="roster-view">
             <div className="roster-header">
               <div className="roster-headline-wrap">
-                <h2 className="roster-title">Галерея ИИ-Персоналий (10 Аватаров)</h2>
+                <h2 className="roster-title">Fellows Directory ({avatarsList.length} Fellows)</h2>
                 <p className="roster-desc">
-                  Выберите цифрового эксперта для детального погружения в его знания и видеоматериалы
+                  Select an expert fellow for focused masterclass perspectives and knowledge exploration
                 </p>
               </div>
 
@@ -1008,7 +1023,7 @@ export default function App() {
                             selectAvatarFromCatalog(avatar.id);
                           }}
                         >
-                          <span>Смотреть видео</span>
+                          <span>Watch Masterclass</span>
                           <ArrowRight size={14} />
                         </button>
                       </div>
@@ -1028,7 +1043,7 @@ export default function App() {
             {/* Sidebar list of avatars for interview */}
             <div className="dialogue-roster-list">
               <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>
-                Выберите собеседника
+                Select Resident Fellow
               </h3>
               {AVATARS.map(avatar => {
                 const isActive = avatar.id === activeAvatarId;
@@ -1083,7 +1098,7 @@ export default function App() {
                     onClick={togglePlay}
                   />
                   <div className="video-overlay-top">
-                    <span className="category-tag">{activeAvatar.name} отвечает</span>
+                    <span className="category-tag">{activeAvatar.name} — Masterclass</span>
                   </div>
                 </div>
               </div>
@@ -1093,7 +1108,7 @@ export default function App() {
                 {activeQuestionData.q && (
                   <div className="chat-bubble-user">
                     <div className="chat-user-message">
-                      <span className="chat-speaker-name">Вопрос</span>
+                      <span className="chat-speaker-name">Inquiry</span>
                       <p className="chat-text">{activeQuestionData.q}</p>
                     </div>
                   </div>
@@ -1110,7 +1125,7 @@ export default function App() {
                       {activeQuestionData.answer || AVATAR_KNOWLEDGE_BASE[activeAvatarId]?.greeting || activeAvatar.quote}
                     </p>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>
-                      {activeQuestionData.q ? 'Нажмите другой вопрос ниже, чтобы переключить ответ:' : 'Выберите интересующий вопрос ниже — я моментально перейду к раскрытию темы на видео:'}
+                      {activeQuestionData.q ? 'Select another inquiry below to explore further perspectives:' : 'Select an inquiry below to address this topic instantly on video:'}
                     </span>
                   </div>
                 </div>
@@ -1128,7 +1143,7 @@ export default function App() {
                           handleAskQuestion(item);
                         }}
                       >
-                        <span>💬 {item.q}</span>
+                        <span>{item.q}</span>
                         <ArrowRight size={16} style={{ color: 'var(--avatar-accent)' }} />
                       </button>
                     );
@@ -1138,19 +1153,26 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* ===============================================================
+            MODE 4: ONE AVATAR • MULTI-ROLE STUDIO
+            =============================================================== */}
+        {activeMode === 'multirole' && (
+          <MultiRoleStudio soundEffects={soundEffects} showToast={showToast} />
+        )}
       </main>
 
       {/* Footer */}
       <footer className="site-footer">
         <div className="footer-left">
-          <span>© 2026 NEXUS AI Platform</span>
+          <span>© 2026 NEXUS Masterclass Studio</span>
           <span>•</span>
-          <span>10 AI Avatars In Full HD 16:9</span>
+          <span>10 Curated Fellows in 16:9 Cinema</span>
           <span>•</span>
-          <span style={{ color: 'var(--avatar-accent)' }}>Real-time Neural Showcase</span>
+          <span style={{ color: 'var(--avatar-accent)' }}>Interactive Perspectives</span>
         </div>
         <div>
-          <span>Нажмите <strong>Пробел</strong> для паузы • <strong>F</strong> для полного экрана</span>
+          <span>Press <strong>Space</strong> to pause • <strong>F</strong> for fullscreen</span>
         </div>
       </footer>
 
@@ -1167,42 +1189,43 @@ export default function App() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3 className="modal-title">Горячие клавиши управления</h3>
+              <h3 className="modal-title">Keyboard Shortcuts</h3>
               <button
                 className="icon-btn"
                 onClick={() => setShowHotkeys(false)}
+                title="Close"
               >
-                ✕
+                <X size={18} />
               </button>
             </div>
 
             <div className="hotkeys-list">
               <div className="hotkey-row">
-                <span className="key-desc">Воспроизведение / Пауза</span>
+                <span className="key-desc">Play / Pause</span>
                 <span className="key-badge">Space</span>
               </div>
               <div className="hotkey-row">
-                <span className="key-desc">Следующий / Предыдущий аватар</span>
+                <span className="key-desc">Next / Previous Fellow</span>
                 <span className="key-badge">Shift + ← / →</span>
               </div>
               <div className="hotkey-row">
-                <span className="key-desc">Перемотка на 3 сек</span>
+                <span className="key-desc">Seek ±3 seconds</span>
                 <span className="key-badge">← / →</span>
               </div>
               <div className="hotkey-row">
-                <span className="key-desc">Громкость звука</span>
+                <span className="key-desc">Volume control</span>
                 <span className="key-badge">↑ / ↓</span>
               </div>
               <div className="hotkey-row">
-                <span className="key-desc">Вкл / Выкл звук (Mute)</span>
+                <span className="key-desc">Mute / Unmute audio</span>
                 <span className="key-badge">M</span>
               </div>
               <div className="hotkey-row">
-                <span className="key-desc">Полноэкранный режим</span>
+                <span className="key-desc">Toggle Fullscreen</span>
                 <span className="key-badge">F</span>
               </div>
               <div className="hotkey-row">
-                <span className="key-desc">Сменить режим интерфейса</span>
+                <span className="key-desc">Cycle interface mode</span>
                 <span className="key-badge">C</span>
               </div>
             </div>
